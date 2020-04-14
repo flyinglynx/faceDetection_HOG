@@ -3,11 +3,13 @@ import numpy as np
 import math
 
 class Hog_descriptor():
-    def __init__(self, img, cell_width=16, block_width=3, bin_size=8, block_stride=1):
+    def __init__(self, img, cell_width=16, block_width=3, bin_size=8, block_stride=1, gamma=1.0):
         self.img = np.zeros(img.shape, dtype=np.float32)
+        #gamma校正
+        self.img = self.adjust_gamma(img, gamma)
         #图像归一化
-        cv.normalize(img, self.img, alpha=0, beta=1, norm_type=cv.NORM_MINMAX,
-                     dtype=cv.CV_32F)
+        #cv.normalize(self.img, self.img, alpha=0, beta=1, norm_type=cv.NORM_MINMAX,
+        #             dtype=cv.CV_32F)
         #cell宽度
         self.cell_width = cell_width
         #block宽度
@@ -17,7 +19,17 @@ class Hog_descriptor():
         #block移动步长
         self.block_stride = block_stride
         #开始提取Hog特征
-        
+   
+    def adjust_gamma(self, imgs, gamma=1.0):    
+        # build a lookup table mapping the pixel values [0, 255] to    
+        # their adjusted gamma values    
+        invGamma = 1.0 / gamma    
+        table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")    
+        # apply gamma correction using the lookup table    
+        new_imgs = np.empty(imgs.shape)    
+        for i in range(imgs.shape[0]):        
+            new_imgs = cv.LUT(np.array(imgs, dtype = np.uint8), table)    
+        return new_imgs
     def extract(self):
         "提取Hog特征"
         #计算图像中每个点的梯度大小和梯度方向
