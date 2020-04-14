@@ -11,7 +11,7 @@ class FaceDetector():
         
     def detect(self,img):
         img = cv2.resize(img, (self.w,self.h),interpolation = cv2.INTER_AREA)
-        hog_des = hog.Hog_descriptor(img,cell_width=16, block_width=3, bin_size=8, block_stride=1)
+        hog_des = hog.Hog_descriptor(img,cell_width=16, block_width=3, bin_size=8, block_stride=1, gamma=3.0)
         hog_vec = hog_des.extract()
         hog_vec = np.array([hog_vec])
         predict = self.detect_model.predict(hog_vec)
